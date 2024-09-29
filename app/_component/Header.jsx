@@ -1,7 +1,9 @@
+'use client'
+
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, Search, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +12,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import GlobalApi from "../_utils/GlobalApi";
 
 const Header = () => {
+
+    const [CategoryList, setCategoryList] = useState([]);
+    useEffect(()=>{
+        getCategoryList();
+    },[])
+    /**
+     * Get Catergory
+     */
+    const getCategoryList=()=> {
+        GlobalApi.getCategory().then(res=>{
+            console.log(res.data.data)
+            setCategoryList( res.data.data);
+        })
+    }
+
   return (
     <div className="p-5 shadow-sm flex justify-between ">
       <div className="flex items-center gap-8">
@@ -30,10 +48,20 @@ const Header = () => {
           <DropdownMenuContent>
             <DropdownMenuLabel>Browser Category</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Billing</DropdownMenuItem>
-            <DropdownMenuItem>Team</DropdownMenuItem>
-            <DropdownMenuItem>Subscription</DropdownMenuItem>
+            {CategoryList.map((category,index)=>(
+                <DropdownMenuItem className="flex gap-4 items-center cursor-pointer" key={category.id} >
+                    <Image src={   
+                        process.env.NEXT_PUBLIC_BACKEND_BASE_URL+
+                        category?.icon[0]?.formats?.thumbnail?.url
+                        }
+                        unoptimized={true}
+                    alt={category?.icon[0]?.name || "icon"}
+                    width={30}
+                    height={30}
+                    />
+                    <h2 className="text-lg"> {category?.name} </h2>
+                </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
